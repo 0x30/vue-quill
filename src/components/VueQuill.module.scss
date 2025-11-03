@@ -27,14 +27,4 @@
     border-radius: 50%;
     cursor: nwse-resize;
   }
-
-  // Custom file button in toolbar
-  :global(.ql-toolbar) {
-    .ql-file {
-      &::before {
-        content: '📎';
-        font-size: 18px;
-      }
-    }
-  }
 }
