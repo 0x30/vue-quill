@@ -13,9 +13,51 @@ import QuillTableBetter from 'quill-table-better'
 import 'quill-table-better/dist/quill-table-better.css'
 import FileBlot from './FileBlot'
 import type { FileData } from './FileBlot'
-import type { VueQuillInstance, ResizeModuleConfig } from '../types'
 import styles from './VueQuill.module.scss'
 import './FileBlot.module.scss'
+
+export interface VueQuillInstance {
+  getQuill: () => Quill | null
+  getHTML: () => string
+  getText: () => string
+  getContents: () => any
+  setHTML: (html: string) => void
+  setText: (text: string) => void
+  setContents: (delta: any) => void
+}
+
+// Resize module configuration types
+interface ResizeParchmentConfig {
+  attribute?: string[]
+  limit?: {
+    minWidth?: number
+    minHeight?: number
+    maxWidth?: number
+    maxHeight?: number
+    ratio?: number
+  }
+}
+
+interface ResizeModuleConfig {
+  modules?: string[]
+  keyboardSelect?: boolean
+  selectedClass?: string
+  activeClass?: string
+  embedTags?: string[]
+  tools?: string[]
+  parchment?: {
+    image?: ResizeParchmentConfig
+    video?: ResizeParchmentConfig
+    [key: string]: ResizeParchmentConfig | undefined
+  }
+  onActive?: (blot: any, target: HTMLElement) => void
+  onInactive?: (blot: any, target: HTMLElement) => void
+  onChangeSize?: (
+    blot: any,
+    target: HTMLElement,
+    size: { width: number; height: number }
+  ) => void
+}
 
 // Custom Image format to support blob URLs
 const ImageFormat = Quill.import('formats/image') as any
