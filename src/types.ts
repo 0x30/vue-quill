@@ -13,16 +13,13 @@ export interface VueQuillProps {
   options?: Record<string, any>
   imageUploader?: (file: File) => Promise<string>
   enableImageResize?: boolean
-}
-
-export interface VueQuillEmits {
-  'update:content': [content: string]
-  'textChange': [delta: any, oldDelta: any, source: string]
-  'selectionChange': [range: any, oldRange: any, source: string]
-  'editorChange': [eventName: string, ...args: any[]]
-  'focus': [range: any, source: string]
-  'blur': [previousRange: any, source: string]
-  'ready': [quill: Quill]
+  onUpdateContent?: (content: string) => void
+  onTextChange?: (delta: any, oldDelta: any, source: string) => void
+  onSelectionChange?: (range: any, oldRange: any, source: string) => void
+  onEditorChange?: (eventName: string, ...args: any[]) => void
+  onFocus?: (range: any, source: string) => void
+  onBlur?: (previousRange: any, source: string) => void
+  onReady?: (quill: Quill) => void
 }
 
 export interface VueQuillInstance {

@@ -3,7 +3,7 @@ import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import ImageResize from 'quill-image-resize'
 import type { VueQuillInstance } from '../types'
-import './VueQuill.css'
+import styles from './VueQuill.module.scss'
 
 // Register image resize module
 Quill.register('modules/imageResize', ImageResize)
@@ -58,10 +58,37 @@ export default defineComponent({
     enableImageResize: {
       type: Boolean,
       default: true
+    },
+    onUpdateContent: {
+      type: Function as unknown as () => (content: string) => void,
+      default: undefined
+    },
+    onTextChange: {
+      type: Function as unknown as () => (delta: any, oldDelta: any, source: string) => void,
+      default: undefined
+    },
+    onSelectionChange: {
+      type: Function as unknown as () => (range: any, oldRange: any, source: string) => void,
+      default: undefined
+    },
+    onEditorChange: {
+      type: Function as unknown as () => (eventName: string, ...args: any[]) => void,
+      default: undefined
+    },
+    onFocus: {
+      type: Function as unknown as () => (range: any, source: string) => void,
+      default: undefined
+    },
+    onBlur: {
+      type: Function as unknown as () => (previousRange: any, source: string) => void,
+      default: undefined
+    },
+    onReady: {
+      type: Function as unknown as () => (quill: Quill) => void,
+      default: undefined
     }
   },
-  emits: ['update:content', 'textChange', 'selectionChange', 'editorChange', 'focus', 'blur', 'ready'],
-  setup(props, { emit, expose }) {
+  setup(props, { expose }) {
     const editorRef = ref<HTMLElement>()
     let quill: Quill | null = null
     let isUpdatingContent = false
@@ -88,21 +115,14 @@ export default defineComponent({
       const range = quill.getSelection(true)
       
       try {
-        // Show loading state
-        const loadingGif = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxOCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjY2NjIiBzdHJva2Utd2lkdGg9IjIiLz48L3N2Zz4='
-        quill.insertEmbed(range.index, 'image', loadingGif)
-        quill.setSelection(range.index + 1, 0)
-        
         // Upload image and get URL
         const imageUrl = await props.imageUploader(file)
         
-        // Replace loading with actual image
-        quill.deleteText(range.index, 1)
+        // Insert image at current cursor position
         quill.insertEmbed(range.index, 'image', imageUrl)
         quill.setSelection(range.index + 1, 0)
       } catch (error) {
         console.error('Image upload failed:', error)
-        quill.deleteText(range.index, 1)
       }
     }
 
@@ -118,11 +138,16 @@ export default defineComponent({
         const item = items[i]
         
         if (item && item.type.indexOf('image') !== -1) {
+          // Prevent default paste behavior
           e.preventDefault()
+          e.stopPropagation()
           
           const file = item.getAsFile()
           if (file) {
-            uploadImage(file)
+            // Wait a tick to ensure Quill doesn't insert anything
+            setTimeout(() => {
+              uploadImage(file)
+            }, 0)
           }
           break
         }
@@ -170,9 +195,9 @@ export default defineComponent({
           })
         }
         
-        // Add paste event listener for images
+        // Add paste event listener for images (use capture phase to intercept before Quill)
         const editor = quill.root
-        editor.addEventListener('paste', handlePaste)
+        editor.addEventListener('paste', handlePaste, true)
       }
 
       // Set initial content
@@ -185,24 +210,24 @@ export default defineComponent({
       quill.on('text-change', (delta: any, oldDelta: any, source: string) => {
         if (!isUpdatingContent) {
           const content = getContent(props.contentType)
-          emit('update:content', String(content))
-          emit('textChange', delta, oldDelta, source)
-          emit('editorChange', 'text-change', delta, oldDelta, source)
+          props.onUpdateContent?.(String(content))
+          props.onTextChange?.(delta, oldDelta, source)
+          props.onEditorChange?.('text-change', delta, oldDelta, source)
         }
       })
 
       quill.on('selection-change', (range: any, oldRange: any, source: string) => {
-        emit('selectionChange', range, oldRange, source)
-        emit('editorChange', 'selection-change', range, oldRange, source)
+        props.onSelectionChange?.(range, oldRange, source)
+        props.onEditorChange?.('selection-change', range, oldRange, source)
         
         if (range) {
-          emit('focus', range, source)
+          props.onFocus?.(range, source)
         } else {
-          emit('blur', oldRange, source)
+          props.onBlur?.(oldRange, source)
         }
       })
 
-      emit('ready', quill)
+      props.onReady?.(quill)
     }
 
     const getContent = (type: string = 'html'): string | any => {
@@ -300,14 +325,14 @@ export default defineComponent({
         // Remove paste event listener
         if (props.imageUploader) {
           const editor = quill.root
-          editor.removeEventListener('paste', handlePaste)
+          editor.removeEventListener('paste', handlePaste, true)
         }
         quill = null
       }
     })
 
     return () => (
-      <div ref={editorRef} class="vue-quill-editor"></div>
+      <div ref={editorRef} class={styles.vueQuillEditor}></div>
     )
   }
 })

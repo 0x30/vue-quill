@@ -18,16 +18,20 @@ const onReady = (quill: any) => {
   console.log("Quill editor ready:", quill);
 };
 
+const onUpdateContent = (newContent: string) => {
+  content.value = newContent;
+};
+
 const clearContent = () => {
   content.value = "";
 };
 
 // 自定义图片上传方法 - 模拟上传到服务器
 const customImageUploader = async (file: File): Promise<string> => {
-  console.log("Uploading image:", file.name);
+  console.log("Uploading image:", file.name, file.size);
 
   // 模拟上传延迟
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   // 这里应该是实际的上传逻辑，例如：
   // const formData = new FormData();
@@ -39,7 +43,12 @@ const customImageUploader = async (file: File): Promise<string> => {
   // const data = await response.json();
   // return data.url;
 
-  return URL.createObjectURL(file);
+  // 在 Demo 中，将图片转换为 Base64 格式
+  // 实际项目中应该上传到服务器并返回 URL
+  const url = URL.createObjectURL(file);
+  console.log("???", url);
+
+  return url;
 };
 
 const setExampleContent = () => {
@@ -115,14 +124,15 @@ const setExampleContent = () => {
       <h3>Editor:</h3>
       <div class="editor-container">
         <VueQuill
-          v-model:content="content"
+          :content="content"
           :theme="theme"
           :read-only="readOnly"
           :image-uploader="enableCustomUpload ? customImageUploader : undefined"
           :enable-image-resize="enableImageResize"
           placeholder="Start writing something amazing..."
-          @text-change="onTextChange"
-          @ready="onReady"
+          :on-text-change="onTextChange"
+          :on-ready="onReady"
+          :on-update-content="onUpdateContent"
         />
       </div>
     </div>
@@ -151,10 +161,14 @@ import { VueQuill } from 'vue-quill'
 import 'quill/dist/quill.snow.css'
 
 const content = ref('&lt;p&gt;Hello World!&lt;/p&gt;')
+
+const onUpdateContent = (newContent: string) => {
+  content.value = newContent
+}
 &lt;/script&gt;
 
 &lt;template&gt;
-  &lt;VueQuill v-model:content="content" /&gt;
+  &lt;VueQuill :content="content" :on-update-content="onUpdateContent" /&gt;
 &lt;/template&gt;</code></pre>
       </section>
 
@@ -189,6 +203,11 @@ const content = ref('&lt;p&gt;Hello World!&lt;/p&gt;')
           pasted images!
         </p>
         <pre><code>&lt;script setup&gt;
+const content = ref('')
+const onUpdateContent = (newContent: string) => {
+  content.value = newContent
+}
+
 const customImageUploader = async (file: File): Promise&lt;string&gt; => {
   const formData = new FormData();
   formData.append('image', file);
@@ -205,7 +224,8 @@ const customImageUploader = async (file: File): Promise&lt;string&gt; => {
 
 &lt;template&gt;
   &lt;VueQuill 
-    v-model:content="content"
+    :content="content"
+    :on-update-content="onUpdateContent"
     :image-uploader="customImageUploader"
     :enable-image-resize="true"
   /&gt;
@@ -225,14 +245,17 @@ const customImageUploader = async (file: File): Promise&lt;string&gt; => {
       </section>
 
       <section class="doc-section">
-        <h2>📡 Events</h2>
+        <h2>📡 Callbacks</h2>
         <ul class="props-list">
-          <li><code>@update:content</code> - Emitted when content changes</li>
-          <li><code>@text-change</code> - Emitted on text change</li>
-          <li><code>@selection-change</code> - Emitted on selection change</li>
-          <li><code>@ready</code> - Emitted when editor is ready</li>
-          <li><code>@focus</code> - Emitted when editor gains focus</li>
-          <li><code>@blur</code> - Emitted when editor loses focus</li>
+          <li>
+            <code>onUpdateContent</code> - 🆕 Callback when content changes
+            (replaces v-model)
+          </li>
+          <li><code>onTextChange</code> - Callback on text change</li>
+          <li><code>onSelectionChange</code> - Callback on selection change</li>
+          <li><code>onReady</code> - Callback when editor is ready</li>
+          <li><code>onFocus</code> - Callback when editor gains focus</li>
+          <li><code>onBlur</code> - Callback when editor loses focus</li>
         </ul>
       </section>
     </div>
