@@ -1,4 +1,4 @@
-import { defineComponent as M, ref as U, watch as C, onMounted as _, nextTick as T, onUnmounted as F, createVNode as E } from "vue";
+import { defineComponent as M, ref as _, watch as C, onMounted as U, nextTick as T, onUnmounted as F, createVNode as E } from "vue";
 import h from "quill";
 import L from "quill-resize-module";
 import k from "quill-table-better";
@@ -219,7 +219,7 @@ const le = /* @__PURE__ */ M({
   setup(n, {
     expose: l
   }) {
-    const i = U();
+    const i = _();
     let t = null, d = !1;
     const p = () => {
       const e = document.createElement("input");
@@ -404,7 +404,7 @@ const le = /* @__PURE__ */ M({
       setHTML: (e) => w(e, "html"),
       setText: (e) => w(e, "text"),
       setContents: (e) => w(e, "delta")
-    }), _(() => {
+    }), U(() => {
       T(() => {
         B();
       });

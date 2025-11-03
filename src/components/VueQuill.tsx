@@ -225,8 +225,6 @@ export default defineComponent({
         // Remove the uploading text
         quill.deleteText(range.index, uploadingText.length, 'user')
 
-        console.log('imageUrl', imageUrl)
-
         // Insert the actual image
         quill.insertEmbed(range.index, 'image', imageUrl, 'user')
         quill.setSelection(range.index + 1, 0)
