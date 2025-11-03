@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import VueQuill from "./components/VueQuill.vue";
+import VueQuill from "./components/VueQuill";
 
 const content = ref(
   "<p>Hello <strong>Vue Quill</strong>!</p><p>Start editing...</p>"
 );
 const readOnly = ref(false);
 const theme = ref<"snow" | "bubble">("snow");
+const enableCustomUpload = ref(true);
+const enableImageResize = ref(true);
 
 const onTextChange = (delta: any, oldDelta: any, source: string) => {
   console.log("Text changed:", { delta, oldDelta, source });
@@ -20,20 +22,42 @@ const clearContent = () => {
   content.value = "";
 };
 
+// 自定义图片上传方法 - 模拟上传到服务器
+const customImageUploader = async (file: File): Promise<string> => {
+  console.log("Uploading image:", file.name);
+
+  // 模拟上传延迟
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  // 这里应该是实际的上传逻辑，例如：
+  // const formData = new FormData();
+  // formData.append('image', file);
+  // const response = await fetch('/api/upload', {
+  //   method: 'POST',
+  //   body: formData
+  // });
+  // const data = await response.json();
+  // return data.url;
+
+  return URL.createObjectURL(file);
+};
+
 const setExampleContent = () => {
   content.value = `
     <h1>Vue Quill Editor Demo</h1>
     <p>This is a <strong>powerful</strong> and <em>flexible</em> rich text editor built with <u>Quill.js</u> and <u>Vue 3</u>.</p>
-    <h2>Features</h2>
+    <h2>✨ New Features</h2>
     <ul>
+      <li>📸 Custom image uploader support</li>
+      <li>� Paste images directly (Ctrl+V / Cmd+V)</li>
+      <li>�🔄 Image resize capability - click and drag image corners!</li>
       <li>Rich text editing with formatting</li>
       <li>Multiple themes (Snow & Bubble)</li>
       <li>Customizable toolbar</li>
       <li>Full TypeScript support</li>
-      <li>Easy to integrate</li>
     </ul>
     <blockquote>
-      "Quill is a free, open source WYSIWYG editor built for the modern web."
+      "Try inserting an image using the toolbar button or paste an image from clipboard!"
     </blockquote>
     <p>Visit <a href="https://quilljs.com/" target="_blank">Quill.js official website</a> to learn more.</p>
   `;
@@ -52,6 +76,20 @@ const setExampleContent = () => {
         <label class="checkbox-label">
           <input v-model="readOnly" type="checkbox" />
           Read Only Mode
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-label">
+          <input v-model="enableCustomUpload" type="checkbox" />
+          Custom Image Upload
+        </label>
+      </div>
+
+      <div class="control-group">
+        <label class="checkbox-label">
+          <input v-model="enableImageResize" type="checkbox" />
+          Enable Image Resize
         </label>
       </div>
 
@@ -80,6 +118,8 @@ const setExampleContent = () => {
           v-model:content="content"
           :theme="theme"
           :read-only="readOnly"
+          :image-uploader="enableCustomUpload ? customImageUploader : undefined"
+          :enable-image-resize="enableImageResize"
           placeholder="Start writing something amazing..."
           @text-change="onTextChange"
           @ready="onReady"
@@ -131,7 +171,57 @@ const content = ref('&lt;p&gt;Hello World!&lt;/p&gt;')
           <li><code>toolbar</code> - Customize toolbar options</li>
           <li><code>modules</code> - Quill modules configuration</li>
           <li><code>formats</code> - Allowed formats array</li>
+          <li>
+            <code>imageUploader</code> - 🆕 Custom image upload function (file:
+            File) => Promise&lt;string&gt;
+          </li>
+          <li>
+            <code>enableImageResize</code> - 🆕 Enable image resize (default:
+            true)
+          </li>
         </ul>
+      </section>
+
+      <section class="doc-section">
+        <h2>📸 Custom Image Upload Example</h2>
+        <p>
+          The custom image uploader works for both toolbar button clicks and
+          pasted images!
+        </p>
+        <pre><code>&lt;script setup&gt;
+const customImageUploader = async (file: File): Promise&lt;string&gt; => {
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData
+  });
+  
+  const data = await response.json();
+  return data.url; // Return the image URL
+};
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;VueQuill 
+    v-model:content="content"
+    :image-uploader="customImageUploader"
+    :enable-image-resize="true"
+  /&gt;
+&lt;/template&gt;</code></pre>
+        <div
+          style="
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 6px;
+            border-left: 4px solid #ffc107;
+          "
+        >
+          <strong>💡 Tip:</strong> Try pasting an image from your clipboard
+          (Ctrl+V / Cmd+V) - it will automatically trigger the custom uploader!
+        </div>
       </section>
 
       <section class="doc-section">

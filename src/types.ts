@@ -11,6 +11,8 @@ export interface VueQuillProps {
   formats?: string[]
   modules?: Record<string, any>
   options?: Record<string, any>
+  imageUploader?: (file: File) => Promise<string>
+  enableImageResize?: boolean
 }
 
 export interface VueQuillEmits {

@@ -9,7 +9,9 @@ A Vue 3 wrapper component for [Quill.js](https://quilljs.com/) - a powerful and 
 - 🔧 Highly customizable toolbar
 - 📝 Support for HTML, Text, and Delta formats
 - 🎯 Full TypeScript support
-- ⚡ Built with Vite
+- ⚡ Built with Vite and JSX/TSX
+- 📸 **Custom image uploader support**
+- 🔄 **Image resize capability**
 - 🎪 Complete example demo included
 
 ## 📦 Installation
@@ -80,6 +82,42 @@ const getHTML = () => {
 </template>
 ```
 
+### 📸 Custom Image Upload
+
+You can provide a custom image uploader function that uploads images to your server instead of using base64:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { VueQuill } from 'vue-quill'
+import 'quill/dist/quill.snow.css'
+
+const content = ref('')
+
+// Custom image uploader - upload to your server
+const customImageUploader = async (file: File): Promise<string> => {
+  const formData = new FormData()
+  formData.append('image', file)
+  
+  const response = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData
+  })
+  
+  const data = await response.json()
+  return data.url // Return the uploaded image URL
+}
+</script>
+
+<template>
+  <VueQuill 
+    v-model:content="content"
+    :image-uploader="customImageUploader"
+    :enable-image-resize="true"
+  />
+</template>
+```
+
 ## 📖 API
 
 ### Props
@@ -96,6 +134,8 @@ const getHTML = () => {
 | `modules` | `Record<string, any>` | `{}` | Quill modules |
 | `formats` | `string[]` | `[]` | Allowed formats |
 | `options` | `Record<string, any>` | `{}` | Additional Quill options |
+| `imageUploader` | `(file: File) => Promise<string>` | `undefined` | Custom image upload function |
+| `enableImageResize` | `boolean` | `true` | Enable image resize capability |
 
 ### Events
 
@@ -165,6 +205,47 @@ import 'quill/dist/quill.bubble.css'
     ['clean'],
     ['link', 'image', 'video']
   ]"
+/>
+```
+
+## 📸 Image Upload & Resize
+
+### Custom Image Uploader
+
+By default, Quill converts images to base64. You can provide a custom uploader to upload images to your server:
+
+```typescript
+const imageUploader = async (file: File): Promise<string> => {
+  // Upload to your server
+  const formData = new FormData()
+  formData.append('image', file)
+  
+  const response = await fetch('https://your-api.com/upload', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Authorization': 'Bearer YOUR_TOKEN'
+    }
+  })
+  
+  const data = await response.json()
+  return data.imageUrl // Must return the image URL
+}
+```
+
+**Features:**
+- 🖱️ Click the image button in toolbar to select and upload
+- 📋 **Paste images directly from clipboard** (Ctrl+V / Cmd+V)
+- ⬆️ Automatic upload with loading state
+- 🔄 Error handling with automatic rollback
+
+### Image Resize
+
+Images can be resized by clicking and dragging the corners. This feature is enabled by default but can be disabled:
+
+```vue
+<VueQuill 
+  :enable-image-resize="false"
 />
 ```
 

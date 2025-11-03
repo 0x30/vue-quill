@@ -1,4 +1,4 @@
-import VueQuill from './components/VueQuill.vue'
+import VueQuill from './components/VueQuill'
 import type { App } from 'vue'
 
 export { VueQuill }
