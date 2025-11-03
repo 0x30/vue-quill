@@ -9,6 +9,8 @@ import {
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import Resize from 'quill-resize-module'
+import QuillTableBetter from 'quill-table-better'
+import 'quill-table-better/dist/quill-table-better.css'
 import FileBlot from './FileBlot'
 import type { FileData } from './FileBlot'
 import type { VueQuillInstance, ResizeModuleConfig } from '../types'
@@ -31,6 +33,9 @@ Quill.register(FileBlot)
 
 // Register resize module
 Quill.register('modules/resize', Resize)
+
+// Register table-better module
+Quill.register({ 'modules/table-better': QuillTableBetter }, true)
 
 export default defineComponent({
   name: 'VueQuill',
@@ -89,6 +94,14 @@ export default defineComponent({
     },
     resizeModuleConfig: {
       type: Object as () => ResizeModuleConfig,
+      default: undefined,
+    },
+    enableTableBetter: {
+      type: Boolean,
+      default: true,
+    },
+    tableBetterOptions: {
+      type: Object as () => any,
       default: undefined,
     },
     onUpdateContent: {
@@ -227,9 +240,9 @@ export default defineComponent({
           name: file.name,
           size: file.size,
           url: fileUrl,
-          type: file.type
+          type: file.type,
         }
-        
+
         quill.insertEmbed(range.index, 'file', fileData, 'user')
         quill.insertText(range.index + 1, '\n', 'user')
         quill.setSelection(range.index + 2, 0)
@@ -279,24 +292,24 @@ export default defineComponent({
       // Check for files (from file explorer copy/paste)
       if (files && files.length > 0 && props.fileUploader) {
         const file = files[0]
-        
+
         if (!file) return
-        
+
         // If it's an image and we have image uploader, use that
         if (file.type.startsWith('image/') && props.imageUploader) {
           e.preventDefault()
           e.stopPropagation()
-          
+
           setTimeout(() => {
             uploadImage(file)
           }, 0)
           return
         }
-        
+
         // Otherwise upload as file
         e.preventDefault()
         e.stopPropagation()
-        
+
         setTimeout(() => {
           uploadFile(file)
         }, 0)
@@ -345,9 +358,37 @@ export default defineComponent({
         }
 
         // Merge with user provided config
-        modules.resize = props.resizeModuleConfig 
+        modules.resize = props.resizeModuleConfig
           ? { ...defaultResizeConfig, ...props.resizeModuleConfig }
           : defaultResizeConfig
+      }
+
+      // Setup table-better module if enabled
+      if (props.enableTableBetter) {
+        const defaultTableBetterConfig = {
+          language: 'zh_CN',
+          menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
+          toolbarTable: true,
+        }
+
+        modules.table = false // Disable default table module
+        modules['table-better'] = props.tableBetterOptions
+          ? { ...defaultTableBetterConfig, ...props.tableBetterOptions }
+          : defaultTableBetterConfig
+
+        // Add keyboard bindings for table-better
+        if (!modules.keyboard) {
+          modules.keyboard = {
+            bindings: QuillTableBetter.keyboardBindings,
+          }
+        } else if (modules.keyboard.bindings) {
+          modules.keyboard.bindings = {
+            ...modules.keyboard.bindings,
+            ...QuillTableBetter.keyboardBindings,
+          }
+        } else {
+          modules.keyboard.bindings = QuillTableBetter.keyboardBindings
+        }
       }
 
       const options = {

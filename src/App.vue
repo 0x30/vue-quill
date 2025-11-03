@@ -25,6 +25,7 @@ const toolbarOptions = [
   [{ align: [] }],
   ['blockquote', 'code-block'],
   ['link', 'image', 'video', 'file', 'formula'],
+  ['table-better'],
   ['clean'],
 ]
 

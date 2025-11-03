@@ -33,6 +33,17 @@ export interface ResizeModuleConfig {
   ) => void
 }
 
+// Table-better module configuration types
+export interface TableBetterOptions {
+  language?: string
+  menus?: string[]
+  toolbarTable?: boolean
+  toolbarButtons?: {
+    whiteList?: string[]
+    singleWhiteList?: string[]
+  }
+}
+
 // Toolbar configuration types
 export type ToolbarHandler =
   | 'bold'
@@ -87,6 +98,8 @@ export interface VueQuillProps {
   fileUploader?: (file: File) => Promise<string>
   enableImageResize?: boolean
   resizeModuleConfig?: ResizeModuleConfig
+  enableTableBetter?: boolean
+  tableBetterOptions?: TableBetterOptions
   onUpdateContent?: (content: string) => void
   onTextChange?: (delta: any, oldDelta: any, source: string) => void
   onSelectionChange?: (range: any, oldRange: any, source: string) => void

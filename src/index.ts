@@ -11,3 +11,6 @@ export default {
 
 export * from './types'
 export type { FileData } from './components/FileBlot'
+
+// Re-export QuillTableBetter for keyboard bindings
+export { default as QuillTableBetter } from 'quill-table-better'
