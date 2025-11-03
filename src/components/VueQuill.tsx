@@ -246,18 +246,21 @@ export default defineComponent({
       }
     }
 
-    // Handle paste event for images
+    // Handle paste event for images and files
     const handlePaste = (e: ClipboardEvent) => {
-      if (!props.imageUploader || !quill) return
+      if (!quill) return
 
       const clipboardData = e.clipboardData
       if (!clipboardData) return
 
       const items = clipboardData.items
+      const files = clipboardData.files
+
+      // Check clipboard items for images
       for (let i = 0; i < items.length; i++) {
         const item = items[i]
 
-        if (item && item.type.indexOf('image') !== -1) {
+        if (item && item.type.indexOf('image') !== -1 && props.imageUploader) {
           // Prevent default paste behavior
           e.preventDefault()
           e.stopPropagation()
@@ -269,8 +272,34 @@ export default defineComponent({
               uploadImage(file)
             }, 0)
           }
-          break
+          return
         }
+      }
+
+      // Check for files (from file explorer copy/paste)
+      if (files && files.length > 0 && props.fileUploader) {
+        const file = files[0]
+        
+        if (!file) return
+        
+        // If it's an image and we have image uploader, use that
+        if (file.type.startsWith('image/') && props.imageUploader) {
+          e.preventDefault()
+          e.stopPropagation()
+          
+          setTimeout(() => {
+            uploadImage(file)
+          }, 0)
+          return
+        }
+        
+        // Otherwise upload as file
+        e.preventDefault()
+        e.stopPropagation()
+        
+        setTimeout(() => {
+          uploadFile(file)
+        }, 0)
       }
     }
 
@@ -335,15 +364,17 @@ export default defineComponent({
       // Get toolbar module
       const toolbar: any = quill.getModule('toolbar')
 
+      // Setup paste event listener for images and files
+      if ((props.imageUploader || props.fileUploader) && quill) {
+        const editor = quill.root
+        editor.addEventListener('paste', handlePaste, true)
+      }
+
       // Setup custom image uploader if provided
       if (props.imageUploader && toolbar) {
         toolbar.addHandler('image', () => {
           selectLocalImage()
         })
-
-        // Add paste event listener for images (use capture phase to intercept before Quill)
-        const editor = quill.root
-        editor.addEventListener('paste', handlePaste, true)
       }
 
       // Setup custom file uploader if provided
@@ -496,7 +527,7 @@ export default defineComponent({
     onUnmounted(() => {
       if (quill) {
         // Remove paste event listener
-        if (props.imageUploader) {
+        if (props.imageUploader || props.fileUploader) {
           const editor = quill.root
           editor.removeEventListener('paste', handlePaste, true)
         }
