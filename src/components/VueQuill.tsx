@@ -135,15 +135,31 @@ export default defineComponent({
 
       const range = quill.getSelection(true)
 
+      // Insert uploading placeholder
+      const uploadingText = `[Uploading "${file.name}"...]`
+      quill.insertText(range.index, uploadingText, 'user')
+      quill.setSelection(range.index + uploadingText.length, 0)
+
       try {
         // Upload image and get URL
         const imageUrl = await props.imageUploader(file)
 
-        // Insert image at current cursor position
-        quill.insertEmbed(range.index, 'image', imageUrl)
+        // Remove the uploading text
+        quill.deleteText(range.index, uploadingText.length, 'user')
+
+        // Insert the actual image
+        quill.insertEmbed(range.index, 'image', imageUrl, 'user')
         quill.setSelection(range.index + 1, 0)
       } catch (error) {
         console.error('Image upload failed:', error)
+        // Remove uploading text on error
+        quill.deleteText(range.index, uploadingText.length, 'user')
+        // Insert error message
+        quill.insertText(
+          range.index,
+          `[Failed to upload "${file.name}"]`,
+          'user'
+        )
       }
     }
 
