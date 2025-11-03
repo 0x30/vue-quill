@@ -11,8 +11,7 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/vue-quill.es.js",
       "require": "./dist/vue-quill.umd.js"
-    },
-    "./dist/style.css": "./dist/style.css"
+    }
   },
   "files": [
     "dist"
@@ -38,21 +37,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/quill": "^2.0.14",
-    "quill": "^2.0.3",
-    "quill-image-resize": "^3.0.9",
-    "quill-resize-module": "^2.0.8",
-    "quill-table-better": "^1.2.3",
-    "vue": "^3.5.22"
+    "@types/quill": "^2.0.14"
+  },
+  "peerDependencies": {
+    "quill": "^2.0.0",
+    "quill-resize-module": "^2.0.0",
+    "quill-table-better": "^1.0.0",
+    "vue": "^3.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.6.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vue/tsconfig": "^0.8.1",
+    "quill": "^2.0.3",
+    "quill-resize-module": "^2.0.8",
+    "quill-table-better": "^1.2.3",
     "sass": "^1.93.3",
     "typescript": "~5.9.3",
     "vite": "^7.1.7",
+    "vite-plugin-css-injected-by-js": "^3.5.2",
+    "vue": "^3.5.22",
     "vue-tsc": "^3.1.0"
   }
 }

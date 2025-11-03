@@ -88,22 +88,6 @@ export default defineComponent({
       type: Function as unknown as () => (file: File) => Promise<string>,
       default: undefined,
     },
-    enableImageResize: {
-      type: Boolean,
-      default: true,
-    },
-    resizeModuleConfig: {
-      type: Object as () => ResizeModuleConfig,
-      default: undefined,
-    },
-    enableTableBetter: {
-      type: Boolean,
-      default: true,
-    },
-    tableBetterOptions: {
-      type: Object as () => any,
-      default: undefined,
-    },
     onUpdateContent: {
       type: Function as unknown as () => (content: string) => void,
       default: undefined,
@@ -332,63 +316,57 @@ export default defineComponent({
       }
 
       // Setup resize module if enabled
-      if (props.enableImageResize) {
-        const defaultResizeConfig: ResizeModuleConfig = {
-          modules: ['DisplaySize', 'Toolbar', 'Resize', 'Keyboard'],
-          keyboardSelect: true,
-          selectedClass: 'selected',
-          activeClass: 'active',
-          embedTags: ['IMG', 'VIDEO', 'IFRAME'],
-          tools: ['left', 'center', 'right', 'full', 'edit'],
-          parchment: {
-            image: {
-              attribute: ['width'],
-              limit: {
-                minWidth: 100,
-              },
-            },
-            video: {
-              attribute: ['width', 'height'],
-              limit: {
-                minWidth: 200,
-                ratio: 0.5625, // 16:9
-              },
+
+      const defaultResizeConfig: ResizeModuleConfig = {
+        modules: ['DisplaySize', 'Toolbar', 'Resize', 'Keyboard'],
+        keyboardSelect: true,
+        selectedClass: 'selected',
+        activeClass: 'active',
+        embedTags: ['IMG', 'VIDEO', 'IFRAME'],
+        tools: ['left', 'center', 'right', 'full', 'edit'],
+        parchment: {
+          image: {
+            attribute: ['width'],
+            limit: {
+              minWidth: 100,
             },
           },
-        }
-
-        // Merge with user provided config
-        modules.resize = props.resizeModuleConfig
-          ? { ...defaultResizeConfig, ...props.resizeModuleConfig }
-          : defaultResizeConfig
+          video: {
+            attribute: ['width', 'height'],
+            limit: {
+              minWidth: 200,
+              ratio: 0.5625, // 16:9
+            },
+          },
+        },
       }
 
+      // Merge with user provided config
+      modules.resize = defaultResizeConfig
+
       // Setup table-better module if enabled
-      if (props.enableTableBetter) {
-        const defaultTableBetterConfig = {
-          language: 'zh_CN',
-          menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
-          toolbarTable: true,
-        }
 
-        modules.table = false // Disable default table module
-        modules['table-better'] = props.tableBetterOptions
-          ? { ...defaultTableBetterConfig, ...props.tableBetterOptions }
-          : defaultTableBetterConfig
+      const defaultTableBetterConfig = {
+        language: 'zh_CN',
+        menus: ['column', 'row', 'merge', 'table', 'cell', 'wrap', 'delete'],
+        toolbarTable: true,
+      }
 
-        // Add keyboard bindings for table-better
-        if (!modules.keyboard) {
-          modules.keyboard = {
-            bindings: QuillTableBetter.keyboardBindings,
-          }
-        } else if (modules.keyboard.bindings) {
-          modules.keyboard.bindings = {
-            ...modules.keyboard.bindings,
-            ...QuillTableBetter.keyboardBindings,
-          }
-        } else {
-          modules.keyboard.bindings = QuillTableBetter.keyboardBindings
+      modules.table = false // Disable default table module
+      modules['table-better'] = defaultTableBetterConfig
+
+      // Add keyboard bindings for table-better
+      if (!modules.keyboard) {
+        modules.keyboard = {
+          bindings: QuillTableBetter.keyboardBindings,
         }
+      } else if (modules.keyboard.bindings) {
+        modules.keyboard.bindings = {
+          ...modules.keyboard.bindings,
+          ...QuillTableBetter.keyboardBindings,
+        }
+      } else {
+        modules.keyboard.bindings = QuillTableBetter.keyboardBindings
       }
 
       const options = {
