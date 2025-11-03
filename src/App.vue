@@ -11,7 +11,7 @@ const theme = ref<'snow' | 'bubble'>('snow')
 const enableCustomUpload = ref(true)
 const enableImageResize = ref(true)
 
-// 完整的工具栏配置示例
+// 完整的工具栏配置示例（包含文件上传按钮）
 const toolbarOptions = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   [{ font: [] }],
@@ -24,7 +24,7 @@ const toolbarOptions = [
   [{ direction: 'rtl' }],
   [{ align: [] }],
   ['blockquote', 'code-block'],
-  ['link', 'image', 'video', 'formula'],
+  ['link', 'image', 'video', 'file', 'formula'],
   ['clean'],
 ]
 
@@ -86,9 +86,22 @@ const customImageUploader = async (file: File): Promise<string> => {
   // 模拟上传延迟
   await new Promise(resolve => setTimeout(resolve, 500))
 
+  // 在 Demo 中使用 blob URL
+  // 实际项目中应该上传到服务器并返回 URL
+  const url = URL.createObjectURL(file)
+  return url
+}
+
+// 自定义文件上传方法 - 模拟上传到服务器
+const customFileUploader = async (file: File): Promise<string> => {
+  console.log('Uploading file:', file.name, file.size, file.type)
+
+  // 模拟上传延迟
+  await new Promise(resolve => setTimeout(resolve, 1000))
+
   // 这里应该是实际的上传逻辑，例如：
   // const formData = new FormData();
-  // formData.append('image', file);
+  // formData.append('file', file);
   // const response = await fetch('/api/upload', {
   //   method: 'POST',
   //   body: formData
@@ -96,7 +109,7 @@ const customImageUploader = async (file: File): Promise<string> => {
   // const data = await response.json();
   // return data.url;
 
-  // 在 Demo 中，将图片转换为 Base64 格式
+  // 在 Demo 中使用 blob URL
   // 实际项目中应该上传到服务器并返回 URL
   const url = URL.createObjectURL(file)
   return url
@@ -109,15 +122,16 @@ const setExampleContent = () => {
     <h2>✨ New Features</h2>
     <ul>
       <li>📸 Custom image uploader support</li>
-      <li>� Paste images directly (Ctrl+V / Cmd+V)</li>
-      <li>�🔄 Image resize capability - click and drag image corners!</li>
+      <li>📋 Paste images directly (Ctrl+V / Cmd+V)</li>
+      <li> Image resize capability - click and drag image corners!</li>
+      <li>📎 File upload support - click the 📎 button to upload any file!</li>
       <li>Rich text editing with formatting</li>
       <li>Multiple themes (Snow & Bubble)</li>
       <li>Customizable toolbar</li>
       <li>Full TypeScript support</li>
     </ul>
     <blockquote>
-      "Try inserting an image using the toolbar button or paste an image from clipboard!"
+      "Try inserting an image or file using the toolbar buttons, or paste an image from clipboard!"
     </blockquote>
     <p>Visit <a href="https://quilljs.com/" target="_blank">Quill.js official website</a> to learn more.</p>
   `
@@ -180,6 +194,7 @@ const setExampleContent = () => {
           :toolbar="toolbarOptions"
           :read-only="readOnly"
           :image-uploader="enableCustomUpload ? customImageUploader : undefined"
+          :file-uploader="enableCustomUpload ? customFileUploader : undefined"
           :enable-image-resize="enableImageResize"
           :resize-module-config="resizeConfig"
           placeholder="Start writing something amazing..."

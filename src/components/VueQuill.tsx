@@ -9,8 +9,11 @@ import {
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import Resize from 'quill-resize-module'
+import FileBlot from './FileBlot'
+import type { FileData } from './FileBlot'
 import type { VueQuillInstance, ResizeModuleConfig } from '../types'
 import styles from './VueQuill.module.scss'
+import './FileBlot.module.scss'
 
 // Custom Image format to support blob URLs
 const ImageFormat = Quill.import('formats/image') as any
@@ -22,6 +25,9 @@ class MyImage extends ImageFormat {
 }
 
 Quill.register('formats/image', MyImage)
+
+// Register file block
+Quill.register(FileBlot)
 
 // Register resize module
 Quill.register('modules/resize', Resize)
@@ -70,6 +76,10 @@ export default defineComponent({
       default: () => ({}),
     },
     imageUploader: {
+      type: Function as unknown as () => (file: File) => Promise<string>,
+      default: undefined,
+    },
+    fileUploader: {
       type: Function as unknown as () => (file: File) => Promise<string>,
       default: undefined,
     },
@@ -144,6 +154,20 @@ export default defineComponent({
       }
     }
 
+    // Custom file upload handler
+    const selectLocalFile = () => {
+      const input = document.createElement('input')
+      input.setAttribute('type', 'file')
+      input.click()
+
+      input.onchange = async () => {
+        const file = input.files?.[0]
+        if (file && quill && props.fileUploader) {
+          await uploadFile(file)
+        }
+      }
+    }
+
     // Upload image helper
     const uploadImage = async (file: File) => {
       if (!quill || !props.imageUploader) return
@@ -175,6 +199,48 @@ export default defineComponent({
         quill.insertText(
           range.index,
           `[Failed to upload "${file.name}"]`,
+          'user'
+        )
+      }
+    }
+
+    // Upload file helper
+    const uploadFile = async (file: File) => {
+      if (!quill || !props.fileUploader) return
+
+      const range = quill.getSelection(true)
+
+      // Insert uploading placeholder
+      const uploadingText = `[Uploading file "${file.name}"...]`
+      quill.insertText(range.index, uploadingText, 'user')
+      quill.setSelection(range.index + uploadingText.length, 0)
+
+      try {
+        // Upload file and get URL
+        const fileUrl = await props.fileUploader(file)
+
+        // Remove the uploading text
+        quill.deleteText(range.index, uploadingText.length, 'user')
+
+        // Insert the file block
+        const fileData: FileData = {
+          name: file.name,
+          size: file.size,
+          url: fileUrl,
+          type: file.type
+        }
+        
+        quill.insertEmbed(range.index, 'file', fileData, 'user')
+        quill.insertText(range.index + 1, '\n', 'user')
+        quill.setSelection(range.index + 2, 0)
+      } catch (error) {
+        console.error('File upload failed:', error)
+        // Remove uploading text on error
+        quill.deleteText(range.index, uploadingText.length, 'user')
+        // Insert error message
+        quill.insertText(
+          range.index,
+          `[Failed to upload file "${file.name}"]`,
           'user'
         )
       }
@@ -266,18 +332,26 @@ export default defineComponent({
 
       quill = new Quill(editorRef.value, options)
 
+      // Get toolbar module
+      const toolbar: any = quill.getModule('toolbar')
+
       // Setup custom image uploader if provided
-      if (props.imageUploader) {
-        const toolbar: any = quill.getModule('toolbar')
-        if (toolbar) {
-          toolbar.addHandler('image', () => {
-            selectLocalImage()
-          })
-        }
+      if (props.imageUploader && toolbar) {
+        toolbar.addHandler('image', () => {
+          selectLocalImage()
+        })
 
         // Add paste event listener for images (use capture phase to intercept before Quill)
         const editor = quill.root
         editor.addEventListener('paste', handlePaste, true)
+      }
+
+      // Setup custom file uploader if provided
+      if (props.fileUploader && toolbar) {
+        // Add custom file button to toolbar
+        toolbar.addHandler('file', () => {
+          selectLocalFile()
+        })
       }
 
       // Set initial content

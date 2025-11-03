@@ -10,3 +10,4 @@ export default {
 }
 
 export * from './types'
+export type { FileData } from './components/FileBlot'

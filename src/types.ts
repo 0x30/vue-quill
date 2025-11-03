@@ -84,6 +84,7 @@ export interface VueQuillProps {
   modules?: Record<string, any>
   options?: Record<string, any>
   imageUploader?: (file: File) => Promise<string>
+  fileUploader?: (file: File) => Promise<string>
   enableImageResize?: boolean
   resizeModuleConfig?: ResizeModuleConfig
   onUpdateContent?: (content: string) => void
