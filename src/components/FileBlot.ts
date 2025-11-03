@@ -3,6 +3,17 @@ import styles from './FileBlot.module.scss'
 
 const BlockEmbed = Quill.import('blots/block/embed') as any
 
+// Register file icon for Quill toolbar
+const icons = Quill.import('ui/icons') as any
+icons['file'] = `
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+  <polyline points="14 2 14 8 20 8"></polyline>
+  <line x1="12" y1="18" x2="12" y2="12"></line>
+  <line x1="9" y1="15" x2="15" y2="15"></line>
+</svg>
+`
+
 export interface FileData {
   name: string
   size: number
@@ -19,37 +30,37 @@ class FileBlot extends BlockEmbed {
     const node = super.create() as HTMLDivElement
     node.setAttribute('contenteditable', 'false')
     node.classList.add(styles.fileBlock!)
-    
+
     // Add data-type attribute for styling
     if (value.type) {
       node.setAttribute('data-type', value.type)
     }
-    
+
     // Create file container
     const container = document.createElement('div')
     container.classList.add(styles.fileContainer!)
-    
+
     // Icon based on file type
     const icon = document.createElement('div')
     icon.classList.add(styles.fileIcon!)
     icon.innerHTML = this.getFileIcon(value.type || value.name)
-    
+
     // File info
     const info = document.createElement('div')
     info.classList.add(styles.fileInfo!)
-    
+
     const name = document.createElement('div')
     name.classList.add(styles.fileName!)
     name.textContent = value.name
     name.setAttribute('title', value.name)
-    
+
     const size = document.createElement('div')
     size.classList.add(styles.fileSize!)
     size.textContent = this.formatFileSize(value.size)
-    
+
     info.appendChild(name)
     info.appendChild(size)
-    
+
     // Download button
     const downloadBtn = document.createElement('a')
     downloadBtn.classList.add(styles.fileDownload!)
@@ -64,19 +75,19 @@ class FileBlot extends BlockEmbed {
         <line x1="12" y1="15" x2="12" y2="3"></line>
       </svg>
     `
-    
+
     // Prevent default click behavior on container
-    container.addEventListener('click', (e) => {
+    container.addEventListener('click', e => {
       e.preventDefault()
       e.stopPropagation()
     })
-    
+
     container.appendChild(icon)
     container.appendChild(info)
     container.appendChild(downloadBtn)
-    
+
     node.appendChild(container)
-    
+
     // Store data
     node.dataset.name = value.name
     node.dataset.size = value.size.toString()
@@ -84,7 +95,7 @@ class FileBlot extends BlockEmbed {
     if (value.type) {
       node.dataset.type = value.type
     }
-    
+
     return node
   }
 
@@ -93,23 +104,23 @@ class FileBlot extends BlockEmbed {
       name: node.dataset.name || '',
       size: parseInt(node.dataset.size || '0'),
       url: node.dataset.url || '',
-      type: node.dataset.type
+      type: node.dataset.type,
     }
   }
 
   static formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes'
-    
+
     const k = 1024
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    
+
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
   }
 
   static getFileIcon(typeOrName: string): string {
     const type = typeOrName.toLowerCase()
-    
+
     // PDF files
     if (type.includes('pdf')) {
       return `
@@ -121,9 +132,12 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Image files
-    if (type.includes('image') || /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i.test(type)) {
+    if (
+      type.includes('image') ||
+      /\.(jpg|jpeg|png|gif|bmp|svg|webp)$/i.test(type)
+    ) {
       return `
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
@@ -132,7 +146,7 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Video files
     if (type.includes('video') || /\.(mp4|avi|mov|wmv|flv|mkv)$/i.test(type)) {
       return `
@@ -142,7 +156,7 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Audio files
     if (type.includes('audio') || /\.(mp3|wav|ogg|m4a|flac)$/i.test(type)) {
       return `
@@ -153,10 +167,14 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Archive files
-    if (type.includes('zip') || type.includes('rar') || type.includes('7z') || 
-        /\.(zip|rar|7z|tar|gz)$/i.test(type)) {
+    if (
+      type.includes('zip') ||
+      type.includes('rar') ||
+      type.includes('7z') ||
+      /\.(zip|rar|7z|tar|gz)$/i.test(type)
+    ) {
       return `
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="21 8 21 21 3 21 3 8"></polyline>
@@ -165,9 +183,12 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Text/Code files
-    if (type.includes('text') || /\.(txt|md|json|xml|html|css|js|ts|py|java|c|cpp)$/i.test(type)) {
+    if (
+      type.includes('text') ||
+      /\.(txt|md|json|xml|html|css|js|ts|py|java|c|cpp)$/i.test(type)
+    ) {
       return `
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <polyline points="16 18 22 12 16 6"></polyline>
@@ -175,10 +196,13 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Excel/Spreadsheet files
-    if (type.includes('spreadsheet') || type.includes('excel') || 
-        /\.(xls|xlsx|csv)$/i.test(type)) {
+    if (
+      type.includes('spreadsheet') ||
+      type.includes('excel') ||
+      /\.(xls|xlsx|csv)$/i.test(type)
+    ) {
       return `
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -189,10 +213,13 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Word/Document files
-    if (type.includes('word') || type.includes('document') || 
-        /\.(doc|docx)$/i.test(type)) {
+    if (
+      type.includes('word') ||
+      type.includes('document') ||
+      /\.(doc|docx)$/i.test(type)
+    ) {
       return `
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -203,7 +230,7 @@ class FileBlot extends BlockEmbed {
         </svg>
       `
     }
-    
+
     // Default file icon
     return `
       <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
