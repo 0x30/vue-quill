@@ -1,4 +1,11 @@
-import { defineComponent, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import {
+  defineComponent,
+  ref,
+  onMounted,
+  onUnmounted,
+  watch,
+  nextTick,
+} from 'vue'
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
 import ImageResize from 'quill-image-resize'
@@ -13,80 +20,94 @@ export default defineComponent({
   props: {
     content: {
       type: String,
-      default: ''
+      default: '',
     },
     contentType: {
       type: String as () => 'delta' | 'html' | 'text',
-      default: 'html'
+      default: 'html',
     },
     enable: {
       type: Boolean,
-      default: true
+      default: true,
     },
     readOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
     placeholder: {
       type: String,
-      default: ''
+      default: '',
     },
     theme: {
       type: String as () => 'snow' | 'bubble' | string,
-      default: 'snow'
+      default: 'snow',
     },
     toolbar: {
       type: [String, Array, Object, Boolean],
-      default: true
+      default: true,
     },
     formats: {
       type: Array as () => string[],
-      default: () => []
+      default: () => [],
     },
     modules: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     options: {
       type: Object,
-      default: () => ({})
+      default: () => ({}),
     },
     imageUploader: {
       type: Function as unknown as () => (file: File) => Promise<string>,
-      default: undefined
+      default: undefined,
     },
     enableImageResize: {
       type: Boolean,
-      default: true
+      default: true,
     },
     onUpdateContent: {
       type: Function as unknown as () => (content: string) => void,
-      default: undefined
+      default: undefined,
     },
     onTextChange: {
-      type: Function as unknown as () => (delta: any, oldDelta: any, source: string) => void,
-      default: undefined
+      type: Function as unknown as () => (
+        delta: any,
+        oldDelta: any,
+        source: string
+      ) => void,
+      default: undefined,
     },
     onSelectionChange: {
-      type: Function as unknown as () => (range: any, oldRange: any, source: string) => void,
-      default: undefined
+      type: Function as unknown as () => (
+        range: any,
+        oldRange: any,
+        source: string
+      ) => void,
+      default: undefined,
     },
     onEditorChange: {
-      type: Function as unknown as () => (eventName: string, ...args: any[]) => void,
-      default: undefined
+      type: Function as unknown as () => (
+        eventName: string,
+        ...args: any[]
+      ) => void,
+      default: undefined,
     },
     onFocus: {
       type: Function as unknown as () => (range: any, source: string) => void,
-      default: undefined
+      default: undefined,
     },
     onBlur: {
-      type: Function as unknown as () => (previousRange: any, source: string) => void,
-      default: undefined
+      type: Function as unknown as () => (
+        previousRange: any,
+        source: string
+      ) => void,
+      default: undefined,
     },
     onReady: {
       type: Function as unknown as () => (quill: Quill) => void,
-      default: undefined
-    }
+      default: undefined,
+    },
   },
   setup(props, { expose }) {
     const editorRef = ref<HTMLElement>()
@@ -111,13 +132,13 @@ export default defineComponent({
     // Upload image helper
     const uploadImage = async (file: File) => {
       if (!quill || !props.imageUploader) return
-      
+
       const range = quill.getSelection(true)
-      
+
       try {
         // Upload image and get URL
         const imageUrl = await props.imageUploader(file)
-        
+
         // Insert image at current cursor position
         quill.insertEmbed(range.index, 'image', imageUrl)
         quill.setSelection(range.index + 1, 0)
@@ -136,12 +157,12 @@ export default defineComponent({
       const items = clipboardData.items
       for (let i = 0; i < items.length; i++) {
         const item = items[i]
-        
+
         if (item && item.type.indexOf('image') !== -1) {
           // Prevent default paste behavior
           e.preventDefault()
           e.stopPropagation()
-          
+
           const file = item.getAsFile()
           if (file) {
             // Wait a tick to ensure Quill doesn't insert anything
@@ -166,12 +187,12 @@ export default defineComponent({
       // Setup image resize module if enabled
       const modules: any = {
         toolbar: props.toolbar,
-        ...props.modules
+        ...props.modules,
       }
 
       if (props.enableImageResize) {
         modules.imageResize = {
-          modules: ['Resize', 'DisplaySize']
+          modules: ['Resize', 'DisplaySize'],
         }
       }
 
@@ -181,7 +202,7 @@ export default defineComponent({
         readOnly: props.readOnly,
         modules,
         formats: props.formats?.length ? props.formats : undefined,
-        ...props.options
+        ...props.options,
       }
 
       quill = new Quill(editorRef.value, options)
@@ -194,7 +215,7 @@ export default defineComponent({
             selectLocalImage()
           })
         }
-        
+
         // Add paste event listener for images (use capture phase to intercept before Quill)
         const editor = quill.root
         editor.addEventListener('paste', handlePaste, true)
@@ -216,23 +237,26 @@ export default defineComponent({
         }
       })
 
-      quill.on('selection-change', (range: any, oldRange: any, source: string) => {
-        props.onSelectionChange?.(range, oldRange, source)
-        props.onEditorChange?.('selection-change', range, oldRange, source)
-        
-        if (range) {
-          props.onFocus?.(range, source)
-        } else {
-          props.onBlur?.(oldRange, source)
+      quill.on(
+        'selection-change',
+        (range: any, oldRange: any, source: string) => {
+          props.onSelectionChange?.(range, oldRange, source)
+          props.onEditorChange?.('selection-change', range, oldRange, source)
+
+          if (range) {
+            props.onFocus?.(range, source)
+          } else {
+            props.onBlur?.(oldRange, source)
+          }
         }
-      })
+      )
 
       props.onReady?.(quill)
     }
 
     const getContent = (type: string = 'html'): string | any => {
       if (!quill) return ''
-      
+
       switch (type) {
         case 'html':
           return quill.root.innerHTML
@@ -245,13 +269,17 @@ export default defineComponent({
       }
     }
 
-    const setContent = (content: string | any, type: string = 'html', silent: boolean = false) => {
+    const setContent = (
+      content: string | any,
+      type: string = 'html',
+      silent: boolean = false
+    ) => {
       if (!quill) return
-      
+
       if (!silent) {
         isUpdatingContent = true
       }
-      
+
       try {
         switch (type) {
           case 'html':
@@ -276,23 +304,35 @@ export default defineComponent({
     }
 
     // Watch props changes
-    watch(() => props.content, (newContent) => {
-      if (!isUpdatingContent && newContent !== getContent(props.contentType)) {
-        setContent(newContent, props.contentType)
+    watch(
+      () => props.content,
+      newContent => {
+        if (
+          !isUpdatingContent &&
+          newContent !== getContent(props.contentType)
+        ) {
+          setContent(newContent, props.contentType)
+        }
       }
-    })
+    )
 
-    watch(() => props.enable, (newEnable) => {
-      if (quill) {
-        quill.enable(newEnable)
+    watch(
+      () => props.enable,
+      newEnable => {
+        if (quill) {
+          quill.enable(newEnable)
+        }
       }
-    })
+    )
 
-    watch(() => props.readOnly, (newReadOnly) => {
-      if (quill) {
-        quill.enable(!newReadOnly)
+    watch(
+      () => props.readOnly,
+      newReadOnly => {
+        if (quill) {
+          quill.enable(!newReadOnly)
+        }
       }
-    })
+    )
 
     // Expose methods
     const getQuill = () => quill
@@ -310,7 +350,7 @@ export default defineComponent({
       getContents,
       setHTML,
       setText,
-      setContents
+      setContents,
     })
 
     // Lifecycle
@@ -331,8 +371,6 @@ export default defineComponent({
       }
     })
 
-    return () => (
-      <div ref={editorRef} class={styles.vueQuillEditor}></div>
-    )
-  }
+    return () => <div ref={editorRef} class={styles.vueQuillEditor}></div>
+  },
 })
