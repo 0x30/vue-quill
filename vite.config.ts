@@ -58,7 +58,9 @@ export default defineConfig(({ mode }) => {
     }
   }
 
+  // Demo/development build configuration
   return {
+    base: mode === 'production' ? '/vue-quill/' : '/',
     plugins: [vue(), vueJsx()],
   }
 })
