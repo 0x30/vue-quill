@@ -1,14 +1,45 @@
 {
   "name": "vue-quill",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
   "type": "module",
+  "main": "./dist/vue-quill.umd.js",
+  "module": "./dist/vue-quill.es.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/vue-quill.es.js",
+      "require": "./dist/vue-quill.umd.js"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0x30/vue-quill.git"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "quill",
+    "editor",
+    "rich-text",
+    "wysiwyg"
+  ],
+  "author": "0x30",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build:lib": "vue-tsc && vite build --mode lib",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/quill": "^2.0.14",
+    "quill": "^2.0.3",
     "vue": "^3.5.22"
   },
   "devDependencies": {
