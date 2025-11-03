@@ -11,7 +11,8 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/vue-quill.es.js",
       "require": "./dist/vue-quill.umd.js"
-    }
+    },
+    "./style.css": "./dist/vue-quill.css"
   },
   "files": [
     "dist"

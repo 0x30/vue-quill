@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
@@ -19,7 +18,6 @@ export default defineConfig(({ mode }) => {
           rollupTypes: true,
           include: ['lib/index.ts', 'src/**/*'],
         }),
-        cssInjectedByJsPlugin(),
       ],
       build: {
         copyPublicDir: false,
@@ -30,7 +28,6 @@ export default defineConfig(({ mode }) => {
         },
         minify: true,
         cssMinify: true,
-        cssCodeSplit: false,
         rollupOptions: {
           external: [
             'vue',
