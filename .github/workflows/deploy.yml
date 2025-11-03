@@ -40,7 +40,7 @@ jobs:
         run: pnpm install
 
       - name: Build demo
-        run: pnpm build:demo
+        run: pnpm build
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
