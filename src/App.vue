@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import VueQuill from "./components/VueQuill";
+import { ref } from 'vue'
+import VueQuill from './components/VueQuill'
 
 const content = ref(
-  "<p>Hello <strong>Vue Quill</strong>!</p><p>Start editing...</p>"
-);
-const readOnly = ref(false);
-const theme = ref<"snow" | "bubble">("snow");
-const enableCustomUpload = ref(true);
-const enableImageResize = ref(true);
+  '<p>Hello <strong>Vue Quill</strong>!</p><p>Start editing...</p>'
+)
+const readOnly = ref(false)
+const theme = ref<'snow' | 'bubble'>('snow')
+const enableCustomUpload = ref(true)
+const enableImageResize = ref(true)
 
 const onTextChange = (delta: any, oldDelta: any, source: string) => {
-  console.log("Text changed:", { delta, oldDelta, source });
-};
+  console.log('Text changed:', { delta, oldDelta, source })
+}
 
 const onReady = (quill: any) => {
-  console.log("Quill editor ready:", quill);
-};
+  console.log('Quill editor ready:', quill)
+}
 
 const onUpdateContent = (newContent: string) => {
-  content.value = newContent;
-};
+  content.value = newContent
+}
 
 const clearContent = () => {
-  content.value = "";
-};
+  content.value = ''
+}
 
 // 自定义图片上传方法 - 模拟上传到服务器
 const customImageUploader = async (file: File): Promise<string> => {
-  console.log("Uploading image:", file.name, file.size);
+  console.log('Uploading image:', file.name, file.size)
 
   // 模拟上传延迟
-  await new Promise((resolve) => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 500))
 
   // 这里应该是实际的上传逻辑，例如：
   // const formData = new FormData();
@@ -45,11 +45,9 @@ const customImageUploader = async (file: File): Promise<string> => {
 
   // 在 Demo 中，将图片转换为 Base64 格式
   // 实际项目中应该上传到服务器并返回 URL
-  const url = URL.createObjectURL(file);
-  console.log("???", url);
-
-  return url;
-};
+  const url = URL.createObjectURL(file)
+  return url
+}
 
 const setExampleContent = () => {
   content.value = `
@@ -69,8 +67,8 @@ const setExampleContent = () => {
       "Try inserting an image using the toolbar button or paste an image from clipboard!"
     </blockquote>
     <p>Visit <a href="https://quilljs.com/" target="_blank">Quill.js official website</a> to learn more.</p>
-  `;
-};
+  `
+}
 </script>
 
 <template>
@@ -270,8 +268,8 @@ const customImageUploader = async (file: File): Promise&lt;string&gt; => {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   min-height: 100vh;
   padding: 20px;
@@ -331,7 +329,7 @@ body {
   user-select: none;
 }
 
-.checkbox-label input[type="checkbox"] {
+.checkbox-label input[type='checkbox'] {
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -426,7 +424,7 @@ body {
 }
 
 .output code {
-  font-family: "Monaco", "Menlo", "Consolas", monospace;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
   font-size: 13px;
   line-height: 1.6;
   color: #2d3748;
@@ -471,7 +469,7 @@ body {
 }
 
 .doc-section code {
-  font-family: "Monaco", "Menlo", "Consolas", monospace;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
   font-size: 13px;
   line-height: 1.6;
 }

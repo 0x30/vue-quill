@@ -12,6 +12,17 @@ import ImageResize from 'quill-image-resize'
 import type { VueQuillInstance } from '../types'
 import styles from './VueQuill.module.scss'
 
+// Custom Image format to support blob URLs
+const ImageFormat = Quill.import('formats/image') as any
+
+class MyImage extends ImageFormat {
+  static sanitize(url: string) {
+    return super.sanitize(url, ['http', 'https', 'data', 'blob']) ? url : '//:0'
+  }
+}
+
+Quill.register('formats/image', MyImage)
+
 // Register image resize module
 Quill.register('modules/imageResize', ImageResize)
 
@@ -146,6 +157,8 @@ export default defineComponent({
 
         // Remove the uploading text
         quill.deleteText(range.index, uploadingText.length, 'user')
+
+        console.log('imageUrl', imageUrl)
 
         // Insert the actual image
         quill.insertEmbed(range.index, 'image', imageUrl, 'user')
