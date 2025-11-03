@@ -8,8 +8,8 @@ import {
 } from 'vue'
 import Quill from 'quill'
 import 'quill/dist/quill.snow.css'
-import ImageResize from 'quill-image-resize'
-import type { VueQuillInstance } from '../types'
+import Resize from 'quill-resize-module'
+import type { VueQuillInstance, ResizeModuleConfig } from '../types'
 import styles from './VueQuill.module.scss'
 
 // Custom Image format to support blob URLs
@@ -23,8 +23,8 @@ class MyImage extends ImageFormat {
 
 Quill.register('formats/image', MyImage)
 
-// Register image resize module
-Quill.register('modules/imageResize', ImageResize)
+// Register resize module
+Quill.register('modules/resize', Resize)
 
 export default defineComponent({
   name: 'VueQuill',
@@ -76,6 +76,10 @@ export default defineComponent({
     enableImageResize: {
       type: Boolean,
       default: true,
+    },
+    resizeModuleConfig: {
+      type: Object as () => ResizeModuleConfig,
+      default: undefined,
     },
     onUpdateContent: {
       type: Function as unknown as () => (content: string) => void,
@@ -213,16 +217,42 @@ export default defineComponent({
         import('quill/dist/quill.bubble.css')
       }
 
-      // Setup image resize module if enabled
+      // Setup modules
       const modules: any = {
         toolbar: props.toolbar,
         ...props.modules,
       }
 
+      // Setup resize module if enabled
       if (props.enableImageResize) {
-        modules.imageResize = {
-          modules: ['Resize', 'DisplaySize'],
+        const defaultResizeConfig: ResizeModuleConfig = {
+          modules: ['DisplaySize', 'Toolbar', 'Resize', 'Keyboard'],
+          keyboardSelect: true,
+          selectedClass: 'selected',
+          activeClass: 'active',
+          embedTags: ['IMG', 'VIDEO', 'IFRAME'],
+          tools: ['left', 'center', 'right', 'full', 'edit'],
+          parchment: {
+            image: {
+              attribute: ['width'],
+              limit: {
+                minWidth: 100,
+              },
+            },
+            video: {
+              attribute: ['width', 'height'],
+              limit: {
+                minWidth: 200,
+                ratio: 0.5625, // 16:9
+              },
+            },
+          },
         }
+
+        // Merge with user provided config
+        modules.resize = props.resizeModuleConfig 
+          ? { ...defaultResizeConfig, ...props.resizeModuleConfig }
+          : defaultResizeConfig
       }
 
       const options = {

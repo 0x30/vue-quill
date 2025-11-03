@@ -17,6 +17,9 @@ importers:
       quill-image-resize:
         specifier: ^3.0.9
         version: 3.0.9
+      quill-resize-module:
+        specifier: ^2.0.8
+        version: 2.0.8
       vue:
         specifier: ^3.5.22
         version: 3.5.22(typescript@5.9.3)
@@ -950,6 +953,9 @@ packages:
 
   quill-image-resize@3.0.9:
     resolution: {integrity: sha512-5Dk0nixhbFsCwSWtPU9qqqtfM2gURfaP+pbBhQvAoMJoF4p99xbAibfAI3gsZJkbWUodoK2iAPf1V5oTSpv9ww==}
+
+  quill-resize-module@2.0.8:
+    resolution: {integrity: sha512-FBEQl+We+HR94OkV43nRd2QnDO6xJYYxfRpc5uJwcuO3hiDPFTRVcPYTKGZGU0nb9ZcLKwxrNHXeAmdd9Zl0Ug==}
 
   quill@1.3.7:
     resolution: {integrity: sha512-hG/DVzh/TiknWtE6QmWAF/pxoZKYxfe3J/d/+ShUWkDvvkZQVTPeVmUJVu1uE6DDooC4fWTiCLh84ul89oNz5g==}
@@ -1916,6 +1922,8 @@ snapshots:
       lodash: 4.17.21
       quill: 1.3.7
       raw-loader: 0.5.1
+
+  quill-resize-module@2.0.8: {}
 
   quill@1.3.7:
     dependencies:

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import VueQuill from './components/VueQuill'
+import type { ResizeModuleConfig } from './types'
 
 const content = ref(
   '<p>Hello <strong>Vue Quill</strong>!</p><p>Start editing...</p>'
@@ -9,6 +10,58 @@ const readOnly = ref(false)
 const theme = ref<'snow' | 'bubble'>('snow')
 const enableCustomUpload = ref(true)
 const enableImageResize = ref(true)
+
+// 完整的工具栏配置示例
+const toolbarOptions = [
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  [{ font: [] }],
+  [{ size: ['small', false, 'large', 'huge'] }],
+  ['bold', 'italic', 'underline', 'strike'],
+  [{ color: [] }, { background: [] }],
+  [{ script: 'sub' }, { script: 'super' }],
+  [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+  [{ indent: '-1' }, { indent: '+1' }],
+  [{ direction: 'rtl' }],
+  [{ align: [] }],
+  ['blockquote', 'code-block'],
+  ['link', 'image', 'video', 'formula'],
+  ['clean'],
+]
+
+// Resize 模块完整配置
+const resizeConfig: ResizeModuleConfig = {
+  modules: ['DisplaySize', 'Toolbar', 'Resize', 'Keyboard'],
+  keyboardSelect: true,
+  selectedClass: 'selected',
+  activeClass: 'active',
+  embedTags: ['IMG', 'VIDEO', 'IFRAME'],
+  tools: ['left', 'center', 'right', 'full', 'edit'],
+  parchment: {
+    image: {
+      attribute: ['width'],
+      limit: {
+        minWidth: 100,
+        maxWidth: 800,
+      },
+    },
+    video: {
+      attribute: ['width', 'height'],
+      limit: {
+        minWidth: 200,
+        ratio: 0.5625, // 16:9
+      },
+    },
+  },
+  onActive: (blot, target) => {
+    console.log('Element activated:', blot, target)
+  },
+  onInactive: (blot, target) => {
+    console.log('Element deactivated:', blot, target)
+  },
+  onChangeSize: (blot, target, size) => {
+    console.log('Size changed:', blot, target, size)
+  },
+}
 
 const onTextChange = (delta: any, oldDelta: any, source: string) => {
   console.log('Text changed:', { delta, oldDelta, source })
@@ -124,9 +177,11 @@ const setExampleContent = () => {
         <VueQuill
           :content="content"
           :theme="theme"
+          :toolbar="toolbarOptions"
           :read-only="readOnly"
           :image-uploader="enableCustomUpload ? customImageUploader : undefined"
           :enable-image-resize="enableImageResize"
+          :resize-module-config="resizeConfig"
           placeholder="Start writing something amazing..."
           :on-text-change="onTextChange"
           :on-ready="onReady"

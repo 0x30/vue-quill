@@ -136,6 +136,7 @@ const customImageUploader = async (file: File): Promise<string> => {
 | `options` | `Record<string, any>` | `{}` | Additional Quill options |
 | `imageUploader` | `(file: File) => Promise<string>` | `undefined` | Custom image upload function |
 | `enableImageResize` | `boolean` | `true` | Enable image resize capability |
+| `resizeModuleConfig` | `ResizeModuleConfig` | `undefined` | Advanced resize module configuration |
 
 ### Events
 
@@ -187,26 +188,77 @@ import 'quill/dist/quill.bubble.css'
 
 ## 🔧 Custom Toolbar
 
+You can customize the toolbar with various options:
+
+### Full Toolbar Example
+
 ```vue
 <VueQuill 
   :toolbar="[
+    [{ header: [1, 2, 3, 4, 5, 6, false] }],
+    [{ font: [] }],
+    [{ size: ['small', false, 'large', 'huge'] }],
     ['bold', 'italic', 'underline', 'strike'],
+    [{ color: [] }, { background: [] }],
+    [{ script: 'sub' }, { script: 'super' }],
+    [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+    [{ indent: '-1' }, { indent: '+1' }],
+    [{ direction: 'rtl' }],
+    [{ align: [] }],
     ['blockquote', 'code-block'],
-    [{ 'header': 1 }, { 'header': 2 }],
-    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'script': 'sub'}, { 'script': 'super' }],
-    [{ 'indent': '-1'}, { 'indent': '+1' }],
-    [{ 'direction': 'rtl' }],
-    [{ 'size': ['small', false, 'large', 'huge'] }],
-    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-    [{ 'color': [] }, { 'background': [] }],
-    [{ 'font': [] }],
-    [{ 'align': [] }],
-    ['clean'],
-    ['link', 'image', 'video']
+    ['link', 'image', 'video', 'formula'],
+    ['clean']
   ]"
 />
 ```
+
+### Available Toolbar Options
+
+**Text Formatting:**
+- `bold` - Bold text
+- `italic` - Italic text
+- `underline` - Underline text
+- `strike` - Strikethrough text
+- `code` - Inline code
+
+**Headers:**
+- `{ header: [1, 2, 3, 4, 5, 6, false] }` - Header levels
+
+**Lists:**
+- `{ list: 'ordered' }` - Numbered list
+- `{ list: 'bullet' }` - Bullet list
+- `{ list: 'check' }` - Checklist
+
+**Text Style:**
+- `{ font: [] }` - Font family
+- `{ size: [] }` - Font size
+- `{ color: [] }` - Text color
+- `{ background: [] }` - Background color
+
+**Alignment:**
+- `{ align: [] }` - Text alignment
+
+**Indentation:**
+- `{ indent: '-1' }` - Decrease indent
+- `{ indent: '+1' }` - Increase indent
+
+**Script:**
+- `{ script: 'sub' }` - Subscript
+- `{ script: 'super' }` - Superscript
+
+**Blocks:**
+- `blockquote` - Blockquote
+- `code-block` - Code block
+
+**Media:**
+- `link` - Insert link
+- `image` - Insert image
+- `video` - Insert video
+- `formula` - Insert formula (requires formula module)
+
+**Other:**
+- `{ direction: 'rtl' }` - Text direction (RTL/LTR)
+- `clean` - Remove formatting
 
 ## 📸 Image Upload & Resize
 
@@ -248,6 +300,81 @@ Images can be resized by clicking and dragging the corners. This feature is enab
   :enable-image-resize="false"
 />
 ```
+
+#### Advanced Resize Configuration
+
+You can customize the resize behavior with detailed configuration:
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { VueQuill } from 'vue-quill'
+import type { ResizeModuleConfig } from 'vue-quill'
+
+const resizeConfig: ResizeModuleConfig = {
+  // Enable feature modules
+  modules: ['DisplaySize', 'Toolbar', 'Resize', 'Keyboard'],
+  
+  // Enable keyboard arrow keys for selection
+  keyboardSelect: true,
+  
+  // CSS classes for selected and active states
+  selectedClass: 'selected',
+  activeClass: 'active',
+  
+  // Resizable embedded tags
+  embedTags: ['IMG', 'VIDEO', 'IFRAME'],
+  
+  // Toolbar buttons
+  tools: ['left', 'center', 'right', 'full', 'edit'],
+  
+  // Parchment configuration: set attributes and limits
+  parchment: {
+    // Image configuration
+    image: {
+      attribute: ['width'],  // Adjustable attributes
+      limit: {
+        minWidth: 100,       // Minimum width limit
+        maxWidth: 800        // Maximum width limit
+      }
+    },
+    // Video configuration
+    video: {
+      attribute: ['width', 'height'],
+      limit: {
+        minWidth: 200,
+        ratio: 0.5625        // Width/height ratio (16:9)
+      }
+    }
+  },
+  
+  // Event callbacks
+  onActive: (blot, target) => {
+    console.log('Element activated:', blot, target)
+  },
+  onInactive: (blot, target) => {
+    console.log('Element deactivated:', blot, target)
+  },
+  onChangeSize: (blot, target, size) => {
+    console.log('Size changed:', size)
+  }
+}
+</script>
+
+<template>
+  <VueQuill 
+    :enable-image-resize="true"
+    :resize-module-config="resizeConfig"
+  />
+</template>
+```
+
+**Resize Module Features:**
+- 📏 **DisplaySize**: Show current element dimensions
+- 🔧 **Toolbar**: Alignment and edit tools
+- 🔄 **Resize**: Drag to resize functionality
+- ⌨️ **Keyboard**: Arrow keys for adjusting size
+- 🎯 **Parchment**: Set min/max limits and aspect ratios
 
 ## 💻 Development
 
