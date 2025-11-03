@@ -1,4 +1,5 @@
 import Quill from 'quill'
+import styles from './FileBlot.module.scss'
 
 const BlockEmbed = Quill.import('blots/block/embed') as any
 
@@ -12,12 +13,12 @@ export interface FileData {
 class FileBlot extends BlockEmbed {
   static blotName = 'file'
   static tagName = 'div'
-  static className = 'ql-file-block'
+  static className = styles.fileBlock!
 
   static create(value: FileData) {
     const node = super.create() as HTMLDivElement
     node.setAttribute('contenteditable', 'false')
-    node.classList.add('ql-file-block')
+    node.classList.add(styles.fileBlock!)
     
     // Add data-type attribute for styling
     if (value.type) {
@@ -26,24 +27,24 @@ class FileBlot extends BlockEmbed {
     
     // Create file container
     const container = document.createElement('div')
-    container.classList.add('ql-file-container')
+    container.classList.add(styles.fileContainer!)
     
     // Icon based on file type
     const icon = document.createElement('div')
-    icon.classList.add('ql-file-icon')
+    icon.classList.add(styles.fileIcon!)
     icon.innerHTML = this.getFileIcon(value.type || value.name)
     
     // File info
     const info = document.createElement('div')
-    info.classList.add('ql-file-info')
+    info.classList.add(styles.fileInfo!)
     
     const name = document.createElement('div')
-    name.classList.add('ql-file-name')
+    name.classList.add(styles.fileName!)
     name.textContent = value.name
     name.setAttribute('title', value.name)
     
     const size = document.createElement('div')
-    size.classList.add('ql-file-size')
+    size.classList.add(styles.fileSize!)
     size.textContent = this.formatFileSize(value.size)
     
     info.appendChild(name)
@@ -51,13 +52,13 @@ class FileBlot extends BlockEmbed {
     
     // Download button
     const downloadBtn = document.createElement('a')
-    downloadBtn.classList.add('ql-file-download')
+    downloadBtn.classList.add(styles.fileDownload!)
     downloadBtn.href = value.url
     downloadBtn.download = value.name
     downloadBtn.setAttribute('target', '_blank')
     downloadBtn.setAttribute('title', 'Download file')
     downloadBtn.innerHTML = `
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
         <polyline points="7 10 12 15 17 10"></polyline>
         <line x1="12" y1="15" x2="12" y2="3"></line>
