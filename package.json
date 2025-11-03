@@ -37,12 +37,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@types/quill": "^2.0.14"
+    "@types/quill": "^2.0.14",
+    "quill": "^2.0.3",
+    "quill-resize-module": "^2.0.8",
+    "quill-table-better": "^1.2.3"
   },
   "peerDependencies": {
-    "quill": "^2.0.0",
-    "quill-resize-module": "^2.0.0",
-    "quill-table-better": "^1.0.0",
     "vue": "^3.0.0"
   },
   "devDependencies": {
